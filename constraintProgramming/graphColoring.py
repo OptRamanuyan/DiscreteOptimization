@@ -52,6 +52,7 @@ if __name__ == '__main__':
     with open(file_location, 'r') as input_data_file:
         input_data = input_data_file.read()
 
+
     print(solve_it(input_data))
 
 
