@@ -131,7 +131,7 @@ class City:
 
 
 if __name__ == '__main__':
-    cityList =[]
+    cityList =[]  #test11
     for i in range(5):
         cityList.append(City(x=int(random.random() * 200), y=int(random.random() * 200)))
     population = initialPopulation(4, cityList)
