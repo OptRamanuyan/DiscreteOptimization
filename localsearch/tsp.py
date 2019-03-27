@@ -3,7 +3,6 @@
 # 遗传算法解TSP问题
 # 创建一个city class ，并计算距离
 '''
-
 Gene: a city (represented as (x, y) coordinates)
 Individual (chromosome): a single route satisfying the conditions above
 Population: a collection of possible routes (i.e., collection of individuals)
@@ -16,28 +15,57 @@ Elitism: a way to carry the best individuals into the next generation
 
 '''
 1. Create the population
-
 2. Determine fitness
-
 3. Select the mating pool
-
 4. Breed
-
 5. Mutate
-
 6. Repeat
 '''
 
 
 import numpy as np
 import  random
+import matplotlib.pyplot as plt
 
-
-def geneticAlgorithm(population, popSize, eliteSize, mutationRate, generation):
+def geneticAlgorithm(cityList, popSize,  mutationRate, generation):
     # Create the initial population[a collection of possible routes]
-    pop = initialPopulation()      # many possible routes
-    sortedPop = rankFitness(pop)   # rank the routes
-    # roulette select the mating pool
+    progress = []
+    pop = initialPopulation(popSize, cityList)      # many possible routes
+    routeDistance = 1/fitness(rankFitness(pop)[0])
+    bestRoute  = rankFitness(pop)[0]
+    progress.append(routeDistance)
+
+    for i in range (generation):
+        pop = nextGeneration(pop, mutationRate)
+        rankedPop = rankFitness(pop)
+        if (1 / fitness(rankedPop[0]) < routeDistance):
+            routeDistance = 1 / fitness(rankedPop[0])
+            bestRoute= rankedPop[0]
+        progress.append(routeDistance)
+
+    print(bestRoute)
+    print('------------------------')
+    print(routeDistance)
+
+    plt.plot(progress)
+    plt.ylabel('Distance')
+    plt.xlabel('Generation')
+    plt.show()
+
+
+
+def nextGeneration(currentGen, mutationRate):
+    # now have a generation, it's a population
+    # rouletteSelect
+    # corssover
+    # mutation
+    selectPop = rouletteSelect(currentGen)  #返回变异群
+    children = offSpring(selectPop)
+    mutPop =mutation(children, mutationRate)
+
+    return mutPop
+
+
 
 
 
@@ -50,8 +78,9 @@ def rankFitness(population):
     fit = [0]*len(population)
     for i in range(len(population)):
         fit[i]= fitness(population[i])
-    rankfit =  sorted(population,key=fitness, reverse=True)
-    return rankfit
+    rankedPop =  sorted(population,key=fitness, reverse=False)
+
+    return rankedPop
 
 
 # input route list
@@ -90,16 +119,18 @@ def createRoute(cityList):
 # too many for cycle
 def rouletteSelect(population):
     selectResults=[]
-    fitall = 0
     fit = [0] * len(population)
     fitrate = [0] * len(population)
+    sumfitrate=[0]* len(population)
+
     for i in range(len(population)):
         fit[i] = fitness(population[i])
     fitall = sum(fit)
+
     for i in range(len(population)):
         for j in range(i+1):
-            sum[i] +=fit[j]
-        fitrate[i] = sum[i]/fitall
+            sumfitrate[i] +=fit[j]
+        fitrate[i] = sumfitrate[i]/fitall
 
     for i in range(20):
         pick = random.random()
@@ -109,12 +140,72 @@ def rouletteSelect(population):
     return selectResults   # return 20 parents
 
 
-def crossOver():
-    111
+# ordered crossover
+# choose a subset of parent1,give it to parent2,then the remainder was placed in order
+# two parents crossover and have one child
+def crossOver(parent1, parent2):
+    child =[]
+    childP1=[]
+    childP2=[]
+    childP3=[]
+    childP4 = []
 
-def mutation():
+    genA = int(random.random()*len(parent1))
+    genB = int(random.random() * len(parent1))
+
+    startGen = min(genA, genB)
+    endGen = max(genA, genB)
+
+    for i in range(startGen, endGen):
+        childP1.append(parent1[i])
+    childP2 = [item for item in parent2 if item not in childP1]
+    for i in range(startGen):
+        childP3.append(childP2[i])
+    childP4 = [item for item in childP2 if item not in childP3]
+
+    child = childP3+childP1+childP4
+
+    return  child
+
+# 输入选择出来的population,用crossover
+
+def offSpring(selectResults):
+    children = []
+    pool = random.sample(selectResults, len(selectResults))
+
+    for i in range (len(selectResults)):
+        child = crossOver(pool[i], pool[len(selectResults)-i-1])
+        children.append(child)
+
+    return children
 
 
+
+#  mutation operation , swap two cities of a route
+def mutation(individual, mutationRate):
+    for swapped in range(len(individual)):
+        if(random.random()< mutationRate):  # swap
+            swapWith = int(random.random()*len(individual))
+            city1 = individual[swapped]
+            city2= individual[swapWith]
+
+
+            individual[swapped]= city2
+            individual[swapWith]=city1
+
+    return  individual
+
+# mutation for the population, 对一整个population都实施这个操作，不一定所有route都会变异
+def mutPop(population, mutationRate):
+    mutPop=[]
+
+    for ind in range(0, len(population)):
+        mutated = mutation(population[ind], mutationRate)
+        mutPop.append(mutated)
+
+    return mutPop
+
+# 实例化 city（x,y）
 class City:
     def __init__(self, x, y):
         self.x = x
@@ -132,12 +223,9 @@ class City:
 
 
 if __name__ == '__main__':
-    cityList =[]  #test11
-    for i in range(5):
+    cityList =[]
+    for i in range(25):
         cityList.append(City(x=int(random.random() * 200), y=int(random.random() * 200)))
-    population = initialPopulation(4, cityList)
-    ra = rankFitness(population)
+    geneticAlgorithm(cityList, 100,  mutationRate=0.01, generation=500)
 
-    print(ra)
 
-# test  github
