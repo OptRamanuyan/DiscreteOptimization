@@ -20,14 +20,28 @@ Elitism: a way to carry the best individuals into the next generation
 4. Breed
 5. Mutate
 6. Repeat
+
+首先生成100条线路的池子，
+第一次迭代
+轮盘赌生成20条线路（可能有重复），
+crossover 生成10条孩子
+变异其中几条孩子
+结束此次迭代
+记录距离及线路
+
+进行下一次迭代
+
+
+
 '''
+
 
 
 import numpy as np
 import  random
 import matplotlib.pyplot as plt
 
-def geneticAlgorithm(cityList, popSize,  mutationRate, generation):
+def geneticAlgorithm(cityList, popSize, eliteSize, mutationRate, generation):
     # Create the initial population[a collection of possible routes]
     progress = []
     pop = initialPopulation(popSize, cityList)      # many possible routes
@@ -36,7 +50,7 @@ def geneticAlgorithm(cityList, popSize,  mutationRate, generation):
     progress.append(routeDistance)
 
     for i in range (generation):
-        pop = nextGeneration(pop, mutationRate)
+        pop = nextGeneration(pop, eliteSize, mutationRate)
         rankedPop = rankFitness(pop)
         if (1 / fitness(rankedPop[0]) < routeDistance):
             routeDistance = 1 / fitness(rankedPop[0])
@@ -54,22 +68,16 @@ def geneticAlgorithm(cityList, popSize,  mutationRate, generation):
 
 
 
-def nextGeneration(currentGen, mutationRate):
+def nextGeneration(currentGen,eliteSize,  mutationRate):
     # now have a generation, it's a population
     # rouletteSelect
     # corssover
     # mutation
-    selectPop = rouletteSelect(currentGen)  #返回变异群
+    selectPop = rouletteSelect(currentGen, eliteSize)
     children = offSpring(selectPop)
     mutPop =mutation(children, mutationRate)
 
     return mutPop
-
-
-
-
-
-
 
 # 2. Determine fitness  use the inverse of the lenth of the route as the fitness
 # maxmize the fitness
@@ -117,7 +125,7 @@ def createRoute(cityList):
 # then use the random pick to return a route
 
 # too many for cycle
-def rouletteSelect(population):
+def rouletteSelect(population,eliteSize):
     selectResults=[]
     fit = [0] * len(population)
     fitrate = [0] * len(population)
@@ -132,12 +140,12 @@ def rouletteSelect(population):
             sumfitrate[i] +=fit[j]
         fitrate[i] = sumfitrate[i]/fitall
 
-    for i in range(20):
+    for i in range(eliteSize):
         pick = random.random()
         for i in range (len(population)):
             if(fitrate[i]<pick<fitrate[i+1]):
                 selectResults.append(population[i])
-    return selectResults   # return 20 parents
+    return selectResults
 
 
 # ordered crossover
@@ -171,7 +179,7 @@ def crossOver(parent1, parent2):
 
 def offSpring(selectResults):
     children = []
-    pool = random.sample(selectResults, len(selectResults))
+    pool = random.sample(selectResults, len(selectResults)) #打乱顺序 个数不变
 
     for i in range (len(selectResults)):
         child = crossOver(pool[i], pool[len(selectResults)-i-1])
@@ -226,6 +234,6 @@ if __name__ == '__main__':
     cityList =[]
     for i in range(25):
         cityList.append(City(x=int(random.random() * 200), y=int(random.random() * 200)))
-    geneticAlgorithm(cityList, 100,  mutationRate=0.01, generation=500)
+    geneticAlgorithm(cityList, 100, eliteSize =50, mutationRate=0.01, generation=500)
 
 
