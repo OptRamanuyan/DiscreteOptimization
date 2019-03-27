@@ -1,5 +1,5 @@
 # https://towardsdatascience.com/evolution-of-a-salesman-a-complete-genetic-algorithm-tutorial-for-python-6fe5d2b3ca35
-# 
+# modify to pull
 # 遗传算法解TSP问题
 # 创建一个city class ，并计算距离
 '''
