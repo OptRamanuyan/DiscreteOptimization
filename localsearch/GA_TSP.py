@@ -40,6 +40,7 @@ crossover 生成10条孩子
 import numpy as np
 import  random
 import matplotlib.pyplot as plt
+import localsearch.visual_tsp as visual
 
 def geneticAlgorithm(cityList, popSize, eliteSize, mutationRate, generation):
     # Create the initial population[a collection of possible routes]
@@ -60,11 +61,11 @@ def geneticAlgorithm(cityList, popSize, eliteSize, mutationRate, generation):
     print(bestRoute)
     print('------------------------')
     print(routeDistance)
-
-    plt.plot(progress)
-    plt.ylabel('Distance')
-    plt.xlabel('Generation')
-    plt.show()
+    visual.plotTSP(bestRoute, num_iters=1)
+    # plt.plot(progress)
+    # plt.ylabel('Distance')
+    # plt.xlabel('Generation')
+    # plt.show()
 
 
 
@@ -234,6 +235,6 @@ if __name__ == '__main__':
     cityList =[]
     for i in range(25):
         cityList.append(City(x=int(random.random() * 200), y=int(random.random() * 200)))
-    geneticAlgorithm(cityList, 100, eliteSize =50, mutationRate=0.01, generation=500)
+    geneticAlgorithm(cityList, 100, eliteSize =50, mutationRate=0.01, generation=1000)
 
 
